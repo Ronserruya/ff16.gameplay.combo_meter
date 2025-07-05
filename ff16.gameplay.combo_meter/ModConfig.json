@@ -1,0 +1,74 @@
+{
+    "ModId": "ff16.gameplay.combo_meter",
+    "ModName": "Combo Counter and Style Gauge",
+    "ModAuthor": "Recoome",
+    "ModVersion": "1.0.0",
+    "ModDescription": "Adds a combo meter and and a DMC-like style gauge, with optional buffs at max rank",
+    "ModDll": "ff16.gameplay.combo_meter.dll",
+    "ModR2RManagedDll32": "x86/ff16.gameplay.combo_meter.dll",
+    "ModR2RManagedDll64": "x64/ff16.gameplay.combo_meter.dll",
+    "ModNativeDll32": "",
+    "ModNativeDll64": "",
+    "IsLibrary": false,
+    "ReleaseMetadataFileName": "ff16.gameplay.combo_meter.ReleaseMetadata.json",
+    "PluginData": {
+        "GitHubDependencies": {
+            "IdToConfigMap": {
+                "ff16.utility.framework": {
+                    "Config": {
+                        "UserName": "Nenkai",
+                        "RepositoryName": "FF16Framework",
+                        "UseReleaseTag": true,
+                        "AssetFileName": "Mod.zip"
+                    },
+                    "ReleaseMetadataName": "FF16Framework.ReleaseMetadata.json"
+                },
+                "ff16.utility.modloader": {
+                    "Config": {
+                        "UserName": "Nenkai",
+                        "RepositoryName": "ff16.utility.modloader",
+                        "UseReleaseTag": true,
+                        "AssetFileName": "Mod.zip"
+                    },
+                    "ReleaseMetadataName": "ff16.utility.modloader.ReleaseMetadata.json"
+                },
+                "Reloaded.Memory.SigScan.ReloadedII": {
+                    "Config": {
+                        "UserName": "Reloaded-Project",
+                        "RepositoryName": "Reloaded.Memory.SigScan",
+                        "UseReleaseTag": false,
+                        "AssetFileName": "Mod.zip"
+                    },
+                    "ReleaseMetadataName": "Reloaded.Memory.SigScan.ReloadedII.ReleaseMetadata.json"
+                },
+                "reloaded.sharedlib.hooks": {
+                    "Config": {
+                        "UserName": "Sewer56",
+                        "RepositoryName": "Reloaded.SharedLib.Hooks.ReloadedII",
+                        "UseReleaseTag": true,
+                        "AssetFileName": "reloaded.sharedlib.hooks.zip"
+                    },
+                    "ReleaseMetadataName": "Sewer56.Update.ReleaseMetadata.json"
+                }
+            }
+        },
+        "GitHubRelease": {
+            "UserName": "ronserruya",
+            "RepositoryName": "ff16.gameplay.combo_meter",
+            "UseReleaseTag": true,
+            "AssetFileName": "Mod.zip"
+        }
+    },
+    "IsUniversalMod": false,
+    "ModDependencies": [
+        "ff16.utility.framework",
+        "ff16.utility.modloader",
+        "Reloaded.Memory.SigScan.ReloadedII",
+        "reloaded.sharedlib.hooks"
+    ],
+    "OptionalDependencies": [],
+    "SupportedAppId": [
+        "ffxvi.exe"
+    ],
+    "ProjectUrl": "https://github.com/ronserruya/ff16.gameplay.combo_meter"
+}
