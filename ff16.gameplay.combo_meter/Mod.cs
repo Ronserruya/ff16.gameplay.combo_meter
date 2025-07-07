@@ -106,34 +106,7 @@ public class Mod : ModBase // <= Do not Remove.
         1, 2, 3, 4, 6, 8, 9, 10
     };
 
-    private ComboGague comboGague = new ComboGague(
-    maxLevel: 4,
-    unitsPerLevel: new()
-        {
-                { 1, 900 },
-                { 2, 1200 },
-                { 3, 1800 },
-                { 4, 2100 }
-        },
-    gagueTypePerLevel: new()
-        {
-                { 1, (char)4 },
-                { 2, (char)3 },
-                { 3, (char)1 },
-                { 4, (char)2 },
-        },
-    gagueElementUiId: 301,
-    levelToUiStringId: new()
-        {
-            { 1, 3800 },
-            { 2, 3801 },
-            { 3, 3802 },
-            { 4, 3803 },
-            { 5, 3804 }
-        },
-    onPause: () => { drainStopwatch.Stop(); comboResetStopwatch.Stop(); buffResetStopwatch.Stop(); },
-    onResume: () => { drainStopwatch.Start(); comboResetStopwatch.Start(); buffResetStopwatch.Start(); }
-);
+    private ComboGague comboGague;
 
     public Mod(ModContext context)
     {
@@ -148,7 +121,41 @@ public class Mod : ModBase // <= Do not Remove.
         Debugger.Launch();
 #endif
 
-        comboGague._logger = _logger;
+        comboGague = new ComboGague(
+            maxLevel: _configuration.extraRanks ? 6 : 4,
+            unitsPerLevel: new()
+                {
+                        { 1, 900 },
+                        { 2, 1200 },
+                        { 3, 1800 },
+                        { 4, 2100 },
+                        { 5, 2100 },
+                        { 6, 2100 }
+                },
+            gagueTypePerLevel: new()
+                {
+                        { 1, (char)4 },
+                        { 2, (char)3 },
+                        { 3, (char)1 },
+                        { 4, (char)2 },
+                        { 5, (char)2 },
+                        { 6, (char)2 },
+                },
+            gagueElementUiId: (uint)(_configuration.gaugePosHigh ? 301 : 302),
+            levelToUiStringId: new()
+                {
+                    { 1, 3800 },
+                    { 2, 3801 },
+                    { 3, 3802 },
+                    { 4, 3803 },
+                    { 5, 3804 },
+                    { 6, 3805 },
+                    { 7, 3806 }
+                },
+            hideBattleScore: _configuration.hideBattleScore,
+            onPause: () => { drainStopwatch.Stop(); comboResetStopwatch.Stop(); buffResetStopwatch.Stop(); },
+            onResume: () => { drainStopwatch.Start(); comboResetStopwatch.Start(); buffResetStopwatch.Start(); }
+        );
 
         _logger.WriteLine($"[{_modConfig.ModId}] Initializing...", _logger.ColorGreen);
 
@@ -167,9 +174,6 @@ public class Mod : ModBase // <= Do not Remove.
             throw new Exception($"[{_modConfig.ModId}] Unable to get ISharedScans!");
         }
         SetupScans(scans);
-
-        comboGague.GagueElementUiId = (uint)(_configuration.gaugePosHigh ? 301 : 302);
-        comboGague.hideBattleScore = _configuration.hideBattleScore;
 
         var baseAddress = Process.GetCurrentProcess().MainModule!.BaseAddress;
         globalUnk = baseAddress + 0x1816608;
@@ -267,7 +271,7 @@ public class Mod : ModBase // <= Do not Remove.
             DrainMeter();
         if (comboResetStopwatch.IsRunning && comboResetStopwatch.isElapsed())
             ResetCombo();
-        if (_configuration.maxRankBuffs && buffResetStopwatch.IsRunning && buffResetStopwatch.isElapsed())
+        if (buffResetStopwatch.IsRunning && buffResetStopwatch.isElapsed())
             DisableCooldownBuff();
     }
 
@@ -295,7 +299,7 @@ public class Mod : ModBase // <= Do not Remove.
         int increase = score / techDifficulty;
 
         var wasMaxLevel = comboGague.IsMaxLevel();
-        comboGague.CurrentUnits += increase;
+        comboGague.CurrentUnits += (int)(increase * _configuration.styleMultiplier);
         comboGague.UpdateGauge(forceUpdate: !wasMaxLevel && comboGague.IsMaxLevel());
 
         return _onBattleTechnique.OriginalFunction(a1, techId, a3);
@@ -304,7 +308,7 @@ public class Mod : ModBase // <= Do not Remove.
     private void OnParryOrDodge()
     {
         var wasMaxLevel = comboGague.IsMaxLevel();
-        comboGague.CurrentUnits += 400;
+        comboGague.CurrentUnits += (int)(400 * _configuration.styleMultiplier);
         comboGague.UpdateGauge(forceUpdate: true);
 
         var drainDelay = comboGague.IsMaxLevel() ? TimeSpan.FromMilliseconds(6000) : TimeSpan.FromMilliseconds(comboGague.Level switch
@@ -312,7 +316,9 @@ public class Mod : ModBase // <= Do not Remove.
             1 => 3000,
             2 => 2200,
             3 => 1600,
-            4 => 1000
+            4 => 1000,
+            5 => 1000,
+            6 => 1000
         });
 
         drainStopwatch.Restart(drainDelay);
@@ -356,25 +362,29 @@ public class Mod : ModBase // <= Do not Remove.
 
     private unsafe void EnterBerserkMode()
     {
-        if (!_configuration.maxRankBuffs)
-            return;
+        // Cooldown
 
-        long globalAddress = *(long*)globalUnk;
-        long escapmentBuffFlagAddress = globalAddress + 0x1B574;
-        long escapmentBuffRateAddress = escapmentBuffFlagAddress + 4;
+        if (_configuration.maxRankCooldown)
+        {
+            long globalAddress = *(long*)globalUnk;
+            long escapmentBuffFlagAddress = globalAddress + 0x1B574;
+            long escapmentBuffRateAddress = escapmentBuffFlagAddress + 4;
 
-        *(long*)escapmentBuffFlagAddress = 1;
-        *(int*)escapmentBuffRateAddress = 200;
-        buffResetStopwatch.Restart();
+            *(long*)escapmentBuffFlagAddress = 1;
+            *(int*)escapmentBuffRateAddress = 200;
+            buffResetStopwatch.Restart();
+        }
+
+        //Berserker
 
         // If limit break unlocked
-        if (_hasSkillUnlocked(28) == (char)1)
+        if (_configuration.maxRankBerserker && (_hasSkillUnlocked(28) == (char)1))
             _startPlayerMode.OriginalFunction(modeA1, 41, 0);
     }
 
     private unsafe void DisableCooldownBuff()
     {
-        if (!_configuration.maxRankBuffs)
+        if (!_configuration.maxRankCooldown)
             return;
 
         long globalAddress = *(long*)globalUnk;
@@ -469,7 +479,7 @@ public class Mod : ModBase // <= Do not Remove.
             if (!info.isHealOrEffect)
             {
                 comboGague.ComboCounter = 0;
-                comboGague.CurrentUnits = (comboGague.CurrentUnits / 2);
+                comboGague.CurrentUnits = (int)(comboGague.CurrentUnits / comboGague.Level >= 4 ? 2.5 : 2);
                 comboGague.UpdateGauge(isIncrease: false);
                 enemyAffected.Clear();
                 usedAttacks.Clear();
@@ -505,14 +515,16 @@ public class Mod : ModBase // <= Do not Remove.
 
             usedAttacks.Add(info.actionId);
 
-            comboGague.CurrentUnits += Math.Min(gainValue, 350);
+            comboGague.CurrentUnits += (int)(Math.Min(gainValue, 350) * _configuration.styleMultiplier);
 
             var drainDelay = comboGague.IsMaxLevel() ? TimeSpan.FromMilliseconds(6000) : TimeSpan.FromMilliseconds(comboGague.Level switch
             {
                 1 => 3000,
                 2 => 2200,
                 3 => 1600,
-                4 => 1000
+                4 => 1000,
+                5 => 1000,
+                6 => 1000
             });
 
             if (info.isRangedMagic)
@@ -526,6 +538,9 @@ public class Mod : ModBase // <= Do not Remove.
 
             if (comboGague.IsMaxLevel())
                 EnterBerserkMode();
+
+            if (_configuration.mustStyle && !comboGague.IsMaxLevel())
+                *(int*)(R15 + 372) = 1;
         }
 
         return _onHit.OriginalFunction(bnpcRow, R15, a3, a4);

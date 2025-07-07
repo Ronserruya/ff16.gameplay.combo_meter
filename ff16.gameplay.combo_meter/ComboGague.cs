@@ -69,18 +69,17 @@ class ComboGague
     private long battleScorePtrAddress;
     private long battleScoreTechBonusPtrAddress;
 
-    public ILogger _logger;
-
-    public ComboGague(int maxLevel, Dictionary<int, int> unitsPerLevel, Dictionary<int, char> gagueTypePerLevel, uint gagueElementUiId, Action onPause, Action onResume, Dictionary<int, uint> levelToUiStringId)
+    public ComboGague(int maxLevel, Dictionary<int, int> unitsPerLevel, Dictionary<int, char> gagueTypePerLevel, uint gagueElementUiId, Action onPause, Action onResume, Dictionary<int, uint> levelToUiStringId, bool hideBattleScore)
     {
         MaxLevel = maxLevel;
-        MaxUnits = unitsPerLevel.Select(kv => kv.Value).Sum();
+        MaxUnits = unitsPerLevel.Where(kv => kv.Key <= maxLevel).Select(kv => kv.Value).Sum();
         GagueElementUiId = gagueElementUiId;
         UnitsPerLevel = unitsPerLevel;
         GagueTypePerLevel = gagueTypePerLevel;
         OnPause = onPause;
         OnResume = onResume;
         LevelToUiStringId = levelToUiStringId;
+        this.hideBattleScore = hideBattleScore;
     }
 
     public void setNexRows(INexRow ramuhSound1, INexRow ramuhSound2)
