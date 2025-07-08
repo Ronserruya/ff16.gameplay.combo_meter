@@ -2,7 +2,7 @@
     "ModId": "ff16.gameplay.combo_meter",
     "ModName": "Combo Counter and Style Gauge",
     "ModAuthor": "Recoome",
-    "ModVersion": "1.0.1",
+    "ModVersion": "1.0.2",
     "ModDescription": "Adds a combo meter and and a DMC-like style gauge, with optional buffs at max rank",
     "ModDll": "ff16.gameplay.combo_meter.dll",
     "ModR2RManagedDll32": "x86/ff16.gameplay.combo_meter.dll",

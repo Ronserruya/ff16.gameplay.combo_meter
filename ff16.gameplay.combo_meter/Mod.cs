@@ -12,6 +12,7 @@ using Reloaded.Memory.SigScan.ReloadedII.Interfaces;
 using Reloaded.Hooks.Definitions;
 using FF16Framework.Interfaces.Nex.Structures;
 using FF16Tools.Files.Nex.Entities;
+using static ff16.gameplay.combo_meter.Mod;
 
 namespace ff16.gameplay.combo_meter;
 
@@ -74,6 +75,9 @@ public class Mod : ModBase // <= Do not Remove.
 
     public delegate char OnBattleTechniqueDelegate(long a1, uint techId, char a3);
     private IHook<OnBattleTechniqueDelegate> _onBattleTechnique;
+
+    public delegate long OnLevelLoad(long a1, double a2, double a3, double a4);
+    private IHook<OnLevelLoad> _onLevelLoad;
 
     private long globalUnk;
     private long globalEntityManagerPtr;
@@ -259,6 +263,11 @@ public class Mod : ModBase // <= Do not Remove.
             _onBattleTechnique = _hooks!.CreateHook<OnBattleTechniqueDelegate>(OnBattleTechniqueImpl, address).Activate();
         });
 
+        scans.AddScan("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 45 ?? 8B 41", address =>
+        {
+            _onLevelLoad = _hooks!.CreateHook<OnLevelLoad>(OnLevelLoadImpl, address).Activate();
+        });
+
         comboGague.SetupScans(scans, _hooks!);
 
     }
@@ -286,6 +295,12 @@ public class Mod : ModBase // <= Do not Remove.
 
         enemyAffected.Clear();
         usedAttacks.Clear();
+    }
+
+    private long OnLevelLoadImpl(long a1, double a2, double a3, double a4)
+    {
+        ResetCombo();
+        return _onLevelLoad.OriginalFunction(a1, a2, a3, a4);
     }
 
     private char OnBattleTechniqueImpl(long a1, uint techId, char a3)
