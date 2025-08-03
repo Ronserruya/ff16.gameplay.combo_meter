@@ -40,6 +40,41 @@ public class Config : Configurable<Config>
     [Description("Whether the gauge should be high or low on the screen")]
     [DefaultValue(true)]
     public bool gaugePosHigh { get; set; } = true;
+
+    [DisplayName("Rank 1 Title")]
+    [Description("Rank 1 Title")]
+    [DefaultValue("Dominated")]
+    public string Rank1Name { get; set; } = "Dominated";
+
+    [DisplayName("Rank 2 Title")]
+    [Description("Rank 2 Title")]
+    [DefaultValue("Cursed")]
+    public string Rank2Name { get; set; } = "Cursed";
+
+    [DisplayName("Rank 3 Title")]
+    [Description("Rank 3 Title")]
+    [DefaultValue("Bearer")]
+    public string Rank3Name { get; set; } = "Bearer";
+
+    [DisplayName("Rank 4 Title")]
+    [Description("Rank 4 Title")]
+    [DefaultValue("Ascended")]
+    public string Rank4Name { get; set; } = "Ascended";
+
+    [DisplayName("Rank 5 Title")]
+    [Description("Rank 5 Title")]
+    [DefaultValue("Sinner!")]
+    public string Rank5Name { get; set; } = "Sinner!";
+
+    [DisplayName("Rank 6 Title")]
+    [Description("Rank 6 Title")]
+    [DefaultValue("SSinner!!")]
+    public string Rank6Name { get; set; } = "SSinner!!";
+
+    [DisplayName("Rank 7 Title")]
+    [Description("Rank 7 Title")]
+    [DefaultValue("SSSinner!!!")]
+    public string Rank7Name { get; set; } = "SSSinner!!!";
 }
 
 /// <summary>

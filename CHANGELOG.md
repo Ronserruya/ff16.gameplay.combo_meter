@@ -1,3 +1,9 @@
+## Ver 1.0.3
+
+* Made rank names customizable 
+
+## 
+
 ## Ver 1.0.2
 
 * Properly reset the gauge when loading a new level

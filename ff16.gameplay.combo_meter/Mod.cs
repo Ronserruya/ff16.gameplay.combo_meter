@@ -1,18 +1,17 @@
-﻿using System.Diagnostics;
-
-using Reloaded.Mod.Interfaces;
-using IReloadedHooks = Reloaded.Hooks.ReloadedII.Interfaces.IReloadedHooks;
-
-using FF16Tools.Files.Nex;
-using FF16Framework.Interfaces.Nex;
-
+﻿using ff16.gameplay.combo_meter.Configuration;
 using ff16.gameplay.combo_meter.Template;
-using ff16.gameplay.combo_meter.Configuration;
-using Reloaded.Memory.SigScan.ReloadedII.Interfaces;
-using Reloaded.Hooks.Definitions;
+using FF16Framework.Interfaces.Nex;
 using FF16Framework.Interfaces.Nex.Structures;
+using FF16Tools.Files.Nex;
 using FF16Tools.Files.Nex.Entities;
+using Reloaded.Hooks.Definitions;
+using Reloaded.Memory.Interfaces;
+using Reloaded.Memory.SigScan.ReloadedII.Interfaces;
+using Reloaded.Mod.Interfaces;
+using System.Diagnostics;
+using System.Text;
 using static ff16.gameplay.combo_meter.Mod;
+using IReloadedHooks = Reloaded.Hooks.ReloadedII.Interfaces.IReloadedHooks;
 
 namespace ff16.gameplay.combo_meter;
 
@@ -92,6 +91,7 @@ public class Mod : ModBase // <= Do not Remove.
     NexTableLayout attackParamLayout = TableMappingReader.ReadTableLayout("attackparam", new Version(1, 0, 3));
     NexTableLayout soundLayout = TableMappingReader.ReadTableLayout("uisound", new Version(1, 0, 3));
     NexTableLayout battleScoreLayout = TableMappingReader.ReadTableLayout("battlescorebonuslevel", new Version(1, 0, 3));
+    NexTableLayout uiLayout = TableMappingReader.ReadTableLayout("ui", new Version(1, 0, 3));
 
     public WeakReference<INextExcelDBApi> _rawNexApi;
 
@@ -220,7 +220,33 @@ public class Mod : ModBase // <= Do not Remove.
             ramuhSound1: soundTable.GetRow(164)!,
             ramuhSound2: soundTable.GetRow(165)!
         );
+
+        _rawNexApi.TryGetTarget(out INextExcelDBApi rawNexApi);
+        var rawUiTable = rawNexApi.GetTable(NexTableIds.ui);
+        List<string> levelStrings = new List<string>()
+        {
+            _configuration.Rank1Name,
+            _configuration.Rank2Name,
+            _configuration.Rank3Name,
+            _configuration.Rank4Name,
+            _configuration.Rank5Name,
+            _configuration.Rank6Name,
+            _configuration.Rank7Name,
+        };
+
+        foreach (var kv in comboGague.LevelToUiStringId) {
+            byte* row = rawNexApi.GetRowData(rawNexApi.SearchRow(rawUiTable, (int)kv.Value));
+            SetStringField(row, uiLayout.Columns["Label"].Offset, levelStrings[kv.Key - 1]);
+        }
     }
+
+    private unsafe void SetStringField(byte* row, long fieldOffset, string value)
+    {
+        int stringOffset = *(int*)(row + fieldOffset);
+        byte* stringPos = row + fieldOffset + stringOffset;
+        Reloaded.Memory.Memory.Instance.SafeWrite((nuint)stringPos, Encoding.UTF8.GetBytes(value + "\0"));
+    }
+
     private unsafe void SetupScans(IStartupScanner scans)
     {
         scans.AddScan("48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 85 ?? ?? ?? ?? 44 8B 82", address =>
