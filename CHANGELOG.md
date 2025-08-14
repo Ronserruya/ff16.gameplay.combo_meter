@@ -1,6 +1,13 @@
+## Ver 1.0.4
+
+* Fixed rank names overlapping
+* Added min rank for must style mod
+
+
+
 ## Ver 1.0.3
 
-* Made rank names customizable 
+* Made rank names customizable
 
 ## 
 

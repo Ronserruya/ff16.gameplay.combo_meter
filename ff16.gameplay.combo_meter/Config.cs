@@ -31,6 +31,11 @@ public class Config : Configurable<Config>
     [DefaultValue(false)]
     public bool mustStyle { get; set; } = false;
 
+    [DisplayName("Must style min rank")]
+    [Description("Minimum rank to deal damage in must style mode, *use -1 for max rank*")]
+    [DefaultValue(-1)]
+    public int mustStyleMinRank { get; set; } = -1;
+
     [DisplayName("Hide battle score?")]
     [Description("Whether to hide the game's built-in battle score ui")]
     [DefaultValue(true)]

@@ -580,7 +580,8 @@ public class Mod : ModBase // <= Do not Remove.
             if (comboGague.IsMaxLevel())
                 EnterBerserkMode();
 
-            if (_configuration.mustStyle && !comboGague.IsMaxLevel())
+            if (_configuration.mustStyle)
+                if ((_configuration.mustStyleMinRank == -1 && !comboGague.IsMaxLevel()) || comboGague.Level < _configuration.mustStyleMinRank)
                 *(int*)(R15 + 372) = 1;
         }
 
